@@ -1,5 +1,8 @@
 # biblioteka do wczytywania danych
 from openpyxl import load_workbook
+# biblioteka do liczenia logarytmu
+from math import log
+
 
 # ladowanie danych z excela
 wb = load_workbook('../testowy.xlsx')
@@ -32,12 +35,34 @@ for nr_wiersza in range(1, ilo_wierszy+1):
         for przypadek in wiersz:
             tablica[atrybut][arkusz.cell(nr_wiersza, 2).value].append(przypadek.value)
 
-# testowe wypisanie wczytanej tablicy
-for p in tablica:
-    print(p, ": ")
-    for a in tablica[p]:
-        print("     ", a, ": ", end=" ")
-        print(tablica[p][a])
+
+# testowe wypisanie tablicy
+def wypisz(tab):
+    for p in tab:
+        print(p, ": ")
+        for a in tab[p]:
+            print("     ", a, ": ", end=" ")
+            print(tab[p][a])
 
 
+# szukana przeslanka
+szukana = 'reklama'
 
+
+# liczenie entropi 'I'
+# *tab - nasza 'tablica' z danymi
+# szuk - szukana przeslanka
+# n - liczba kolumn z przypadkami
+def entropia(tab, szuk, n):
+    tab_ni = {}  # slownik z ilosciami przypadkow dla danego atrybutu
+    # zliczanie ilosci przypadkow
+    for atr in tab[szuk]:
+        tab_ni[atr] = sum(tab[szuk][atr])
+    # liczenie entropi 'I'
+    entr = 0
+    for atr in tab_ni:
+        entr -= (tab_ni[atr] / n) * log(tab_ni[atr]/n, 2)
+    print('Entropia = ', entr)
+
+
+entropia(tablica, szukana, ilo_kolumn-2)

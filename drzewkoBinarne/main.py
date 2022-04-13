@@ -39,5 +39,6 @@ for p in tablica:
         print("     ", a, ": ", end=" ")
         print(tablica[p][a])
 
-
+# szukany atrybut
+szukany = 'reklama'
 

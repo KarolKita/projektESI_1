@@ -114,7 +114,7 @@ def entr_potw_zaprz(tab, szuk, przes, war):
 # funkcja zwracajaca atrybut z nawieksza laczna entropia
 # tab - 'tablica' z danymi
 # szuk - szukana przeslanka
-# ilo_k - ilosc kolumn w pliku
+# ilo_k - ilosc kolumn w tabeli
 def max_laczna_entropia(tab, szuk, ilo_k):
     entr_maks = -1  # najwieksza laczna entropia
     atr_maks = ''  # atrybut z najwieksza entropia
@@ -134,5 +134,40 @@ def max_laczna_entropia(tab, szuk, ilo_k):
     return atr_maks
 
 
-print('Najwieksza entropia: ', end=' ')
-print(max_laczna_entropia(tablica, szukana, ilo_kolumn-2))
+# testowy atrybut
+test_atr = 'wieś'
+
+# slownik zawierajacy podzial tabeli
+tab_podzial = {}
+# dodanie pierwszego atrybutu
+tab_podzial[test_atr] = {'tak': {}, 'nie': {}}
+
+
+# funkcja dzielaca tabele
+# tab 'tablica' z danymi
+# atr_p atrybut na podstawie ktorego dzielimy tabele
+def podzial_tab(tab, przes_p, atr_p):
+    tab_tak = {}  # tablica z danymi potwierdzajacymi warunek
+    tab_nie = {}  # tablica z danymi zaprzeczajacymi warunek
+
+    # wczytywanie przeslanek i atrybutow do tabel
+    for przes in tab:
+        tab_tak[przes] = {}
+        tab_nie[przes] = {}
+        for atr in tab[przes]:
+            tab_tak[przes][atr] = []
+            tab_nie[przes][atr] = []
+
+    nr_kol = 0  # numer kolumny
+
+    # wczytanie przypadkow do tablic
+    for przyp_p in tab[przes_p][atr_p]:
+        for przes in tab:
+            for atr in tab[przes]:
+                if przyp_p == 1:
+                    # tablica z elementami potwierdzajacymi
+                    tab_tak[przes][atr].append(tab[przes][atr][nr_kol])
+                else:
+                    # tablica z elementami zaprzeczajacymi
+                    tab_nie[przes][atr].append(tab[przes][atr][nr_kol])
+        nr_kol += 1  # zwiekszanie numeru kolumny

@@ -65,11 +65,11 @@ def entropia(tab, szuk, n):
     return entr
 
 
-# liczenie lacznej entopi po ocenie warunku j
+# liczenie entopi potwierdzajacych i zatwierdzajacych warunek j
 # tab - 'tablica' z danymi
 # szuk - szukana przeslanka
 # n - liczba kolumn z przypadkami (0,1)
-def laczna_entropia(tab, szuk, przes, war):
+def entr_potw_zaprz(tab, szuk, przes, war):
     n = len(tab[przes][war])  # liczba przypadkow
     nr = 0  # numer kolumny sprawdzanego przypadku
     # tworzenie slownika do przechowywania ilosci przypadkow potwierdzajacych i zaprzeczajacych warunek j
@@ -111,22 +111,28 @@ def laczna_entropia(tab, szuk, przes, war):
     return (n_potw / n) * entr_potw + (n_zaprz / n) * entr_zaprz
 
 
-################################################################################################
-# najwieksza wartosc lacznej entropi
-entr_maks = -1
-atr_maks = ''
+# funkcja zwracajaca atrybut z nawieksza laczna entropia
+# tab - 'tablica' z danymi
+# szuk - szukana przeslanka
+# ilo_k - ilosc kolumn w pliku
+def max_laczna_entropia(tab, szuk, ilo_k):
+    entr_maks = -1  # najwieksza laczna entropia
+    atr_maks = ''  # atrybut z najwieksza entropia
 
-# wartosc entropi
-e = entropia(tablica, szukana, ilo_kolumn-2)
+    # wartosc entropi
+    entr = entropia(tab, szuk, ilo_k)
 
-# wartosci lacznej entropi dla warunkow
-for przeslanka in tablica:
-    if przeslanka != szukana:
-        for a in tablica[przeslanka]:
-            if entr_maks < (e - laczna_entropia(tablica, szukana, przeslanka, a)):
-                entr_maks = e - laczna_entropia(tablica, szukana, przeslanka, a)
-                atr_maks = a
-            print(a, end=': ')
-            print(e - laczna_entropia(tablica, szukana, przeslanka, a))
+    # liczenie lacznej wartosci entropi
+    for przes in tab:
+        if przes != szuk:
+            for atr in tab[przes]:
+                # szukanie atrybutu z najwieksza wartoscia lacznej entropi
+                if entr_maks < (entr - entr_potw_zaprz(tab, szuk, przes, atr)):
+                    entr_maks = entr - entr_potw_zaprz(tab, szuk, przes, atr)
+                    atr_maks = atr
 
-print('Najwiesza entropia: ', atr_maks)
+    return atr_maks
+
+
+print('Najwieksza entropia: ', end=' ')
+print(max_laczna_entropia(tablica, szukana, ilo_kolumn-2))

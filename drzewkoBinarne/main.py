@@ -145,6 +145,7 @@ tab_podzial[test_atr] = {'tak': {}, 'nie': {}}
 
 # funkcja dzielaca tabele
 # tab 'tablica' z danymi
+# przes_p przeslanka dla ktore atrybut posiada najwieksza laczna entropie
 # atr_p atrybut na podstawie ktorego dzielimy tabele
 def podzial_tab(tab, przes_p, atr_p):
     tab_tak = {}  # tablica z danymi potwierdzajacymi warunek

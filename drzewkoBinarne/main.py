@@ -134,15 +134,6 @@ def max_laczna_entropia(tab, szuk, ilo_k):
     return atr_maks
 
 
-# testowy atrybut
-test_atr = 'wieś'
-
-# slownik zawierajacy podzial tabeli
-tab_podzial = {}
-# dodanie pierwszego atrybutu
-tab_podzial[test_atr] = {'tak': {}, 'nie': {}}
-
-
 # funkcja dzielaca tabele
 # tab 'tablica' z danymi
 # przes_p przeslanka dla ktore atrybut posiada najwieksza laczna entropie

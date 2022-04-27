@@ -172,3 +172,14 @@ def podzial_tab(tab, przes_p, atr_p):
                     # tablica z elementami zaprzeczajacymi
                     tab_nie[przes][atr].append(tab[przes][atr][nr_kol])
         nr_kol += 1  # zwiekszanie numeru kolumny
+
+    return tab_tak, tab_nie
+
+
+# funkcja sprawdzajaca czy jedna z szukanych konkluzji posiada same '1'
+# tab - 'tablica' z danymi
+# szuk - szukana przeslanka
+def sprawdz(tab, szuk):
+    for atr in tab[szuk]:
+        if len(tab[szuk][atr]) == sum(tab[szuk][atr]):
+            return 1

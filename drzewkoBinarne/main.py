@@ -2,6 +2,8 @@
 from openpyxl import load_workbook
 # biblioteka do liczenia logarytmu
 from math import log
+# wlasna biblioteka zawierajaca klase implementujaca drzewko binarne
+from drzewko_binarne import Drzewko
 
 
 # ladowanie danych z excela
@@ -52,16 +54,17 @@ szukana = 'reklama'
 # liczenie entropi 'I' dla warunku j
 # tab - 'tablica' z danymi
 # szuk - szukana przeslanka
-# n - liczba kolumn z przypadkami (0,1)
-def entropia(tab, szuk, n):
+def entropia(tab, szuk):
     tab_ni = {}  # slownik z ilosciami przypadkow dla danego atrybutu
+    n = len(tab['mieszka']['wieś'])  # ilosc kolumn z przypadkami
     # zliczanie ilosci przypadkow dla atrybutu
     for atr in tab[szuk]:
         tab_ni[atr] = sum(tab[szuk][atr])
     # liczenie entropi 'I'
     entr = 0
     for atr in tab_ni:
-        entr -= (tab_ni[atr] / n) * log(tab_ni[atr]/n, 2)
+        if tab_ni[atr] > 0:
+            entr -= (tab_ni[atr] / n) * log(tab_ni[atr]/n, 2)
     return entr
 
 
@@ -114,13 +117,13 @@ def entr_potw_zaprz(tab, szuk, przes, war):
 # funkcja zwracajaca atrybut z nawieksza laczna entropia
 # tab - 'tablica' z danymi
 # szuk - szukana przeslanka
-# ilo_k - ilosc kolumn w tabeli
-def max_laczna_entropia(tab, szuk, ilo_k):
+def max_laczna_entropia(tab, szuk):
     entr_maks = -1  # najwieksza laczna entropia
     atr_maks = ''  # atrybut z najwieksza entropia
+    przes_maks = ''  # przeslanka dla ktorej atrybut ma najwieksza laczna entropie
 
     # wartosc entropi
-    entr = entropia(tab, szuk, ilo_k)
+    entr = entropia(tab, szuk)
 
     # liczenie lacznej wartosci entropi
     for przes in tab:
@@ -130,8 +133,9 @@ def max_laczna_entropia(tab, szuk, ilo_k):
                 if entr_maks < (entr - entr_potw_zaprz(tab, szuk, przes, atr)):
                     entr_maks = entr - entr_potw_zaprz(tab, szuk, przes, atr)
                     atr_maks = atr
+                    przes_maks = przes
 
-    return atr_maks
+    return atr_maks, przes_maks
 
 
 # funkcja dzielaca tabele
@@ -174,3 +178,47 @@ def sprawdz(tab, szuk):
     for atr in tab[szuk]:
         if len(tab[szuk][atr]) == sum(tab[szuk][atr]):
             return 1
+
+
+# funkcja zwraca konkluzje z samymi '1' w przypadkach
+def zwroc_konkluzje(tab, szuk):
+    for atr in tab[szuk]:
+        if len(tab[szuk][atr]) == sum(tab[szuk][atr]):
+            return atr
+
+
+# tworzenie korzenia
+atr_temp, przes_temp = max_laczna_entropia(tablica, szukana)
+drzewo = Drzewko(atr_temp)
+drzewo.przeslanka = przes_temp
+
+
+# glowna funkcja tworzaca drzewo
+# kor - to obiekt klasy Drzewko
+# tab - 'tablica' z danymi
+def tworz_drzewo(kor, tab, szuk):
+    # podzial tabeli
+    kor.tab_tak, kor.tab_nie = podzial_tab(tab, kor.przeslanka, kor.korzen)
+
+    # tworzenie kolejnych galezi
+    # galezie z 'tak'
+    if sprawdz(kor.tab_tak, szuk) == 1:
+        kor.tak = zwroc_konkluzje(kor.tab_tak, szuk)
+    else:
+        temp_t = max_laczna_entropia(kor.tab_tak, szuk)
+        kor.tak = Drzewko(temp_t[0])
+        kor.tak.przeslanka = temp_t[1]
+        tworz_drzewo(kor.tak, kor.tab_tak, szuk)
+    # galezie z 'nie'
+    if sprawdz(kor.tab_nie, szuk) == 1:
+        kor.nie = zwroc_konkluzje(kor.tab_nie, szuk)
+    else:
+        temp_n = max_laczna_entropia(kor.tab_nie, szuk)
+        kor.nie = Drzewko(temp_n[0])
+        kor.nie.przeslanka = temp_n[1]
+        tworz_drzewo(kor.nie, kor.tab_nie, szuk)
+
+    return kor
+
+
+print(tworz_drzewo(drzewo, tablica, szukana))

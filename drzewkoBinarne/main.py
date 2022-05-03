@@ -2,6 +2,8 @@
 from openpyxl import load_workbook
 # biblioteka do liczenia logarytmu
 from math import log
+# biblioteka sluzaca do graficznego przdstawienia drzewa
+import tkinter as tk
 # wlasna biblioteka zawierajaca klase implementujaca drzewko binarne
 from drzewko_binarne import Drzewko
 
@@ -193,32 +195,101 @@ drzewo = Drzewko(atr_temp)
 drzewo.przeslanka = przes_temp
 
 
-# glowna funkcja tworzaca drzewo
-# kor - to obiekt klasy Drzewko
+# funkcja tworzaca drzewo
+# korz - to obiekt klasy Drzewko
 # tab - 'tablica' z danymi
-def tworz_drzewo(kor, tab, szuk):
+# szuk - szukana przeslanka
+def tworz_drzewo(korz, tab, szuk):
     # podzial tabeli
-    kor.tab_tak, kor.tab_nie = podzial_tab(tab, kor.przeslanka, kor.korzen)
+    korz.tab_tak, korz.tab_nie = podzial_tab(tab, korz.przeslanka, korz.korzen)
 
-    # tworzenie kolejnych galezi
+    # tworzenie kolejnych galezi drzewa
     # galezie z 'tak'
-    if sprawdz(kor.tab_tak, szuk) == 1:
-        kor.tak = zwroc_konkluzje(kor.tab_tak, szuk)
+    if sprawdz(korz.tab_tak, szuk) == 1:
+        korz.tak = zwroc_konkluzje(korz.tab_tak, szuk)
     else:
-        temp_t = max_laczna_entropia(kor.tab_tak, szuk)
-        kor.tak = Drzewko(temp_t[0])
-        kor.tak.przeslanka = temp_t[1]
-        tworz_drzewo(kor.tak, kor.tab_tak, szuk)
+        temp_t = max_laczna_entropia(korz.tab_tak, szuk)
+        korz.tak = Drzewko(temp_t[0])
+        korz.tak.przeslanka = temp_t[1]
+        tworz_drzewo(korz.tak, korz.tab_tak, szuk)
     # galezie z 'nie'
-    if sprawdz(kor.tab_nie, szuk) == 1:
-        kor.nie = zwroc_konkluzje(kor.tab_nie, szuk)
+    if sprawdz(korz.tab_nie, szuk) == 1:
+        korz.nie = zwroc_konkluzje(korz.tab_nie, szuk)
     else:
-        temp_n = max_laczna_entropia(kor.tab_nie, szuk)
-        kor.nie = Drzewko(temp_n[0])
-        kor.nie.przeslanka = temp_n[1]
-        tworz_drzewo(kor.nie, kor.tab_nie, szuk)
+        temp_n = max_laczna_entropia(korz.tab_nie, szuk)
+        korz.nie = Drzewko(temp_n[0])
+        korz.nie.przeslanka = temp_n[1]
+        tworz_drzewo(korz.nie, korz.tab_nie, szuk)
 
-    return kor
+    return korz
 
 
-print(tworz_drzewo(drzewo, tablica, szukana))
+# tworzenie drzewa
+tworz_drzewo(drzewo, tablica, szukana)
+
+# lista zawierajaca dane do rysowania drzewa
+dane = []
+
+
+# tworzenie danych potrzebnych do graficznego przedstawienia drzewa,
+# funkcja zwraca liste zawierajaca listy z nazwami etykiet oraz wspolrzednymi 'x' i 'y'
+def dane_do_rysowania(korz, d, x, y):
+    # dane korzenia
+    d.append([korz.korzen, x, y])
+
+    # dane wezla 'tak'
+    if isinstance(korz.tak, Drzewko):
+        dane_do_rysowania(korz.tak, d, x - 100, y + 75)
+    else:
+        d.append([korz.tak, x - 100, y + 75])
+
+    # dane wezla 'nie'
+    if isinstance(korz.nie, Drzewko):
+        dane_do_rysowania(korz.nie, d, x + 100, y + 75)
+    else:
+        d.append([korz.nie, x + 100, y + 75])
+
+    return d
+
+
+# tworzenie danych
+dane_do_rysowania(drzewo, dane, 495, 0)
+
+# graficzne przedstawienie drzewa
+# tworzenie okna
+okno = tk.Tk()
+
+# dodanie tytulu i rozmiarow okna
+okno.title("Drzewko decyzyjne")
+okno.geometry("1200x600")
+
+# pakiet uzywany do rysowania lini
+canvas = tk.Canvas(okno, width=1200, height=600)
+canvas.pack()
+
+# tworzenie graficzne drzewka
+for etykieta in dane:
+    # tworzenie etykiet
+    tk.Label(master=okno,
+             text=etykieta[0],
+             font=20,
+             width=10,
+             borderwidth=2,
+             relief="solid").place(x=etykieta[1], y=etykieta[2])
+
+    # tworzenie lini
+    if etykieta[0] == 'Telewizja' or etykieta[0] == 'Internet' or etykieta[0] == 'Prasa':
+        continue
+    else:
+        # wspolrzedne startowe
+        x_start = etykieta[1] + 50
+        y_start = etykieta[2] + 20
+        # rysowanie lini
+        canvas.create_line(x_start, y_start, x_start-100, y_start+60, fill="green", width=3)
+        canvas.create_line(x_start, y_start, x_start+100, y_start+60, fill="red", width=3)
+
+    # tworzenie etykiet 'tak' i 'nie'
+    tk.Label(master=okno, text='TAK', font=5).place(x=x_start - 70, y=y_start + 20)
+    tk.Label(master=okno, text='NIE', font=5).place(x=x_start + 40, y=y_start + 20)
+
+okno.mainloop()

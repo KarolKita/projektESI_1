@@ -119,7 +119,8 @@ def entr_potw_zaprz(tab, szuk, przes, war):
 # funkcja zwracajaca atrybut z nawieksza laczna entropia
 # tab - 'tablica' z danymi
 # szuk - szukana przeslanka
-def max_laczna_entropia(tab, szuk):
+# p - dodatkowy parametr ktory zawiera przeslanke rodzica
+def max_laczna_entropia(tab, szuk, p=None):
     entr_maks = -1  # najwieksza laczna entropia
     atr_maks = ''  # atrybut z najwieksza entropia
     przes_maks = ''  # przeslanka dla ktorej atrybut ma najwieksza laczna entropie
@@ -129,7 +130,7 @@ def max_laczna_entropia(tab, szuk):
 
     # liczenie lacznej wartosci entropi
     for przes in tab:
-        if przes != szuk:
+        if przes != szuk and przes != p:
             for atr in tab[przes]:
                 # szukanie atrybutu z najwieksza wartoscia lacznej entropi
                 if entr_maks < (entr - entr_potw_zaprz(tab, szuk, przes, atr)):
@@ -209,6 +210,9 @@ def tworz_drzewo(korz, tab, szuk):
         korz.tak = zwroc_konkluzje(korz.tab_tak, szuk)
     else:
         temp_t = max_laczna_entropia(korz.tab_tak, szuk)
+        # sprawdzenie czy aktualna przeslanka jest rozna od przeslanki rodzica
+        if temp_t[1] == korz.przeslanka:
+            temp_t = max_laczna_entropia(korz.tab_tak, szuk, temp_t[1])
         korz.tak = Drzewko(temp_t[0])
         korz.tak.przeslanka = temp_t[1]
         tworz_drzewo(korz.tak, korz.tab_tak, szuk)
@@ -217,6 +221,9 @@ def tworz_drzewo(korz, tab, szuk):
         korz.nie = zwroc_konkluzje(korz.tab_nie, szuk)
     else:
         temp_n = max_laczna_entropia(korz.tab_nie, szuk)
+        # sprawdzenie czy aktualna przeslanka jest rozna od przeslanki rodzica
+        if temp_n[1] == korz.przeslanka:
+            temp_n = max_laczna_entropia(korz.tab_tak, szuk, temp_n[1])
         korz.nie = Drzewko(temp_n[0])
         korz.nie.przeslanka = temp_n[1]
         tworz_drzewo(korz.nie, korz.tab_nie, szuk)

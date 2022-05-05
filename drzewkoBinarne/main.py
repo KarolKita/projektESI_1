@@ -1,7 +1,7 @@
 # biblioteka do wczytywania danych
 from openpyxl import load_workbook
 # biblioteka do liczenia logarytmu
-from math import log
+import math
 # biblioteka sluzaca do graficznego przdstawienia drzewa
 import tkinter as tk
 # wlasna biblioteka zawierajaca klase implementujaca drzewko binarne
@@ -9,7 +9,7 @@ from drzewko_binarne import Drzewko
 
 
 # ladowanie danych z excela
-wb = load_workbook('../testowy.xlsx')
+wb = load_workbook('../dane_samochody.xlsx')
 arkusz = wb.active
 
 # 'tablica' z danymi
@@ -17,8 +17,8 @@ tablica = {}
 
 # zmienne pomocnicze
 var = None
-ilo_wierszy = 10  # ilosc wierszy w arkuszu
-ilo_kolumn = 14  # ilosc kolumn w arkuszu
+ilo_wierszy = 21  # ilosc wierszy w arkuszu
+ilo_kolumn = 102  # ilosc kolumn w arkuszu
 atrybut = arkusz.cell(1, 1).value  # pierwszy atrybut w arkuszu
 
 # wczytanie danych do tablicy wiersz po wierszu z arkusza
@@ -50,7 +50,7 @@ def wypisz(tab):
 
 
 # szukana przeslanka
-szukana = 'reklama'
+szukana = 'Segment'
 
 
 # liczenie entropi 'I' dla warunku j
@@ -58,7 +58,7 @@ szukana = 'reklama'
 # szuk - szukana przeslanka
 def entropia(tab, szuk):
     tab_ni = {}  # slownik z ilosciami przypadkow dla danego atrybutu
-    n = len(tab['mieszka']['wieś'])  # ilosc kolumn z przypadkami
+    n = len(tab['Segment']['A'])  # ilosc kolumn z przypadkami
     # zliczanie ilosci przypadkow dla atrybutu
     for atr in tab[szuk]:
         tab_ni[atr] = sum(tab[szuk][atr])
@@ -66,7 +66,7 @@ def entropia(tab, szuk):
     entr = 0
     for atr in tab_ni:
         if tab_ni[atr] > 0:
-            entr -= (tab_ni[atr] / n) * log(tab_ni[atr]/n, 2)
+            entr -= (tab_ni[atr] / n) * math.log(tab_ni[atr]/n, 2)
     return entr
 
 
@@ -108,10 +108,10 @@ def entr_potw_zaprz(tab, szuk, przes, war):
     for atr in tab[szuk]:
         # liczenie entropi po potwierdzeniu warunku
         if tab_ni[atr]['n+'] > 0:
-            entr_potw -= (tab_ni[atr]['n+'] / n_potw) * log((tab_ni[atr]['n+'] / n_potw), 2)
+            entr_potw -= (tab_ni[atr]['n+'] / n_potw) * math.log((tab_ni[atr]['n+'] / n_potw), 2)
         # liczenie entropi po zaprzeczeniu warunku
         if tab_ni[atr]['n-'] > 0:
-            entr_zaprz -= (tab_ni[atr]['n-'] / n_zaprz) * log((tab_ni[atr]['n-'] / n_zaprz), 2)
+            entr_zaprz -= (tab_ni[atr]['n-'] / n_zaprz) * math.log((tab_ni[atr]['n-'] / n_zaprz), 2)
 
     return (n_potw / n) * entr_potw + (n_zaprz / n) * entr_zaprz
 
@@ -239,28 +239,33 @@ dane = []
 
 
 # tworzenie danych potrzebnych do graficznego przedstawienia drzewa,
+# gdzie korz to obiekt Drzewa
+# d - lista z danymi
+# x - wspolrzedna x
+# y - wspolrzedna y
+# wart - okresla galaz 'tak' lub 'nie' do rodzica
 # funkcja zwraca liste zawierajaca listy z nazwami etykiet oraz wspolrzednymi 'x' i 'y'
-def dane_do_rysowania(korz, d, x, y):
+def dane_do_rysowania(korz, d, x, y, wart=None):
     # dane korzenia
-    d.append([korz.korzen, x, y])
+    d.append([korz.korzen, x, y, wart])
 
     # dane wezla 'tak'
     if isinstance(korz.tak, Drzewko):
-        dane_do_rysowania(korz.tak, d, x - 100, y + 75)
+        dane_do_rysowania(korz.tak, d, x - 300, y + 100, 1)
     else:
-        d.append([korz.tak, x - 100, y + 75])
+        d.append([korz.tak, x - 100, y + 75, 1])
 
     # dane wezla 'nie'
     if isinstance(korz.nie, Drzewko):
-        dane_do_rysowania(korz.nie, d, x + 100, y + 75)
+        dane_do_rysowania(korz.nie, d, x + 300, y + 100, 0)
     else:
-        d.append([korz.nie, x + 100, y + 75])
+        d.append([korz.nie, x + 100, y + 75, 0])
 
     return d
 
 
-# tworzenie danych
-dane_do_rysowania(drzewo, dane, 495, 0)
+# tworzenie danych do graficznego przedstawienia drzewa
+dane_do_rysowania(drzewo, dane, 595, 0)
 
 # graficzne przedstawienie drzewa
 # tworzenie okna
@@ -268,10 +273,10 @@ okno = tk.Tk()
 
 # dodanie tytulu i rozmiarow okna
 okno.title("Drzewko decyzyjne")
-okno.geometry("1200x600")
+okno.geometry("1500x800")
 
 # pakiet uzywany do rysowania lini
-canvas = tk.Canvas(okno, width=1200, height=600)
+canvas = tk.Canvas(okno, width=1500, height=800)
 canvas.pack()
 
 # tworzenie graficzne drzewka
@@ -284,19 +289,44 @@ for etykieta in dane:
              borderwidth=2,
              relief="solid").place(x=etykieta[1], y=etykieta[2])
 
-    # tworzenie lini
-    if etykieta[0] == 'Telewizja' or etykieta[0] == 'Internet' or etykieta[0] == 'Prasa':
-        continue
-    else:
-        # wspolrzedne startowe
-        x_start = etykieta[1] + 50
-        y_start = etykieta[2] + 20
-        # rysowanie lini
-        canvas.create_line(x_start, y_start, x_start-100, y_start+60, fill="green", width=3)
-        canvas.create_line(x_start, y_start, x_start+100, y_start+60, fill="red", width=3)
+    # wspolrzedne startowe
+    x_start = etykieta[1] + 50
+    y_start = etykieta[2] + 20
+    # wspolrzedne koncowe
+    x_stop = x_start
+    y_stop = y_start
 
-    # tworzenie etykiet 'tak' i 'nie'
-    tk.Label(master=okno, text='TAK', font=5).place(x=x_start - 70, y=y_start + 20)
-    tk.Label(master=okno, text='NIE', font=5).place(x=x_start + 40, y=y_start + 20)
+    # tworzenie lini oraz etykiet 'tak' i 'nie'
+    if etykieta[0] == drzewo.korzen:
+        continue
+    elif etykieta[0] == 'A' or etykieta[0] == 'B' or etykieta[0] == 'C' or etykieta[0] == 'D' or etykieta[0] == 'J':
+        y_stop -= 75
+        y_etyk = 60
+        if etykieta[3] == 1:
+            x_stop += 100
+            kolor = "green"
+            tekst = "TAK"
+            x_etyk = 45
+        else:
+            x_stop -= 100
+            kolor = "red"
+            tekst = "NIE"
+            x_etyk = -65
+    else:
+        y_stop -= 100
+        y_etyk = 75
+        if etykieta[3] == 1:
+            x_stop += 300
+            kolor = "green"
+            tekst = "TAK"
+            x_etyk = 170
+        else:
+            x_stop -= 300
+            kolor = "red"
+            tekst = "NIE"
+            x_etyk = -200
+
+    canvas.create_line(x_start, y_start, x_stop, y_stop, fill=kolor, width=3)
+    tk.Label(master=okno, text=tekst, font=5).place(x=x_start + x_etyk, y=y_start - y_etyk)
 
 okno.mainloop()

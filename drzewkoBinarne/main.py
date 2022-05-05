@@ -18,13 +18,13 @@ tablica = {}
 # zmienne pomocnicze
 var = None
 ilo_wierszy = 21  # ilosc wierszy w arkuszu
-ilo_kolumn = 102  # ilosc kolumn w arkuszu
+ilo_kolumn = 164  # ilosc kolumn w arkuszu
 atrybut = arkusz.cell(1, 1).value  # pierwszy atrybut w arkuszu
 
 # wczytanie danych do tablicy wiersz po wierszu z arkusza
 # gdzie w pierwszej kolumnie sa przeslanki
 # w drugiej kolumnie sa atrybuty
-# a w kolumnach od 3 do 103 (?) sa przypadki
+# a w kolumnach od 3 do  sa przypadki
 for nr_wiersza in range(1, ilo_wierszy+1):
     # wczytanie przeslanki
     if arkusz.cell(nr_wiersza, 1).value != var:
@@ -265,7 +265,7 @@ def dane_do_rysowania(korz, d, x, y, wart=None):
 
 
 # tworzenie danych do graficznego przedstawienia drzewa
-dane_do_rysowania(drzewo, dane, 595, 0)
+dane_do_rysowania(drzewo, dane, 425, 0)
 
 # graficzne przedstawienie drzewa
 # tworzenie okna
@@ -273,10 +273,11 @@ okno = tk.Tk()
 
 # dodanie tytulu i rozmiarow okna
 okno.title("Drzewko decyzyjne")
-okno.geometry("1500x800")
+okno.geometry("1600x800")
+okno.resizable(0,0)
 
 # pakiet uzywany do rysowania lini
-canvas = tk.Canvas(okno, width=1500, height=800)
+canvas = tk.Canvas(okno, width=1600, height=800)
 canvas.pack()
 
 # tworzenie graficzne drzewka

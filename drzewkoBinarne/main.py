@@ -24,7 +24,7 @@ atrybut = arkusz.cell(1, 1).value  # pierwszy atrybut w arkuszu
 # wczytanie danych do tablicy wiersz po wierszu z arkusza
 # gdzie w pierwszej kolumnie sa przeslanki
 # w drugiej kolumnie sa atrybuty
-# a w kolumnach od 3 do  sa przypadki
+# a w kolumnach od 3 do  164 sa przypadki
 for nr_wiersza in range(1, ilo_wierszy+1):
     # wczytanie przeslanki
     if arkusz.cell(nr_wiersza, 1).value != var:
@@ -251,18 +251,41 @@ def dane_do_rysowania(korz, d, x, y, wart=None):
 
     # dane wezla 'tak'
     if isinstance(korz.tak, Drzewko):
-        dane_do_rysowania(korz.tak, d, x - 300, y + 100, 1)
+        dane_do_rysowania(korz.tak, d, x - 300, y + 120, 1)
     else:
         d.append([korz.tak, x - 100, y + 75, 1])
 
     # dane wezla 'nie'
     if isinstance(korz.nie, Drzewko):
-        dane_do_rysowania(korz.nie, d, x + 300, y + 100, 0)
+        dane_do_rysowania(korz.nie, d, x + 300, y + 120, 0)
     else:
         d.append([korz.nie, x + 100, y + 75, 0])
 
     return d
 
+
+# slownik zawierajacy nazwy etykiet
+nazwy = {"15 <": "dystans < 15",
+         "15 - 35": "dystans miedzy 15 a 35",
+         "35 >=": "dystans >= 35",
+         "= 1": "liczba przewozonych osob = 1",
+         "= 2": "liczba przewozonych osob = 2",
+         "3 >=": "liczba przewozonych osob >= 3",
+         "50 <": "wielkosc bagazu < 50",
+         "50 - 100": "wielkosc bagazu miedzy 50 a 100",
+         "100 >=": "wielkosc bagazu >= 100",
+         "<= 50": "srednia predkosc <= 50",
+         "50 - 70": "srednia predkosc miedzy 50 a 70",
+         "70 >=": "srednia predkosc >= 70",
+         "ekspresowa": "droga ekspresowa",
+         "główna": "droga glowna",
+         "lokalna": "droga lokalna",
+         "gruntowa": "droga gruntowa",
+         "A": "auto małe",
+         "B": "auto miejskie",
+         "C": "auto kompaktowe",
+         "D": "auto rodzinne",
+         "J": "auto terenowe"}
 
 # tworzenie danych do graficznego przedstawienia drzewa
 dane_do_rysowania(drzewo, dane, 425, 0)
@@ -274,7 +297,7 @@ okno = tk.Tk()
 # dodanie tytulu i rozmiarow okna
 okno.title("Drzewko decyzyjne")
 okno.geometry("1600x800")
-okno.resizable(0,0)
+okno.resizable(False, False)
 
 # pakiet uzywany do rysowania lini
 canvas = tk.Canvas(okno, width=1600, height=800)
@@ -284,9 +307,10 @@ canvas.pack()
 for etykieta in dane:
     # tworzenie etykiet
     tk.Label(master=okno,
-             text=etykieta[0],
+             text=nazwy[etykieta[0]],
              font=20,
-             width=10,
+             padx=10,
+             pady=5,
              borderwidth=2,
              relief="solid").place(x=etykieta[1], y=etykieta[2])
 
@@ -302,30 +326,30 @@ for etykieta in dane:
         continue
     elif etykieta[0] == 'A' or etykieta[0] == 'B' or etykieta[0] == 'C' or etykieta[0] == 'D' or etykieta[0] == 'J':
         y_stop -= 75
-        y_etyk = 60
+        y_etyk = 50
         if etykieta[3] == 1:
             x_stop += 100
             kolor = "green"
             tekst = "TAK"
-            x_etyk = 45
+            x_etyk = 35
         else:
             x_stop -= 100
             kolor = "red"
             tekst = "NIE"
             x_etyk = -65
     else:
-        y_stop -= 100
+        y_stop -= 120
         y_etyk = 75
         if etykieta[3] == 1:
             x_stop += 300
             kolor = "green"
             tekst = "TAK"
-            x_etyk = 170
+            x_etyk = 150
         else:
             x_stop -= 300
             kolor = "red"
             tekst = "NIE"
-            x_etyk = -200
+            x_etyk = -170
 
     canvas.create_line(x_start, y_start, x_stop, y_stop, fill=kolor, width=3)
     tk.Label(master=okno, text=tekst, font=5).place(x=x_start + x_etyk, y=y_start - y_etyk)
